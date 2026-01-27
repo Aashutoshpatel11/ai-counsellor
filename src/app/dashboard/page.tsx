@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import ShortlistTable from '@/components/dashboard/ShortlistTable'
 import TaskList from '@/components/dashboard/TaskList'
 import StartDiscoveryButton from '@/components/dashboard/StartDiscoveryButton' // <--- IMPORT THIS
+import ChatWidget from '@/components/dashboard/ChatWidget'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -10,13 +11,10 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return redirect('/login')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single()
+  const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
 
   const currentStage = profile?.current_stage || 'PROFILE'
+  // const currentStage = 'PROFILE'
   const stepIndices: Record<string, number> = {
     'PROFILE': 0,
     'DISCOVERY': 1,
@@ -87,7 +85,7 @@ export default async function DashboardPage() {
                         </div>
 
                         <div className="alert bg-blue-50 text-blue-900 text-sm mt-4">
-                            Based on your GPA of {profile?.academic_data?.gpa}, the AI recommends focusing on universities with acceptance rates between <strong>40-70%</strong> for a Safe/Target mix.
+                            Based on your GPA of {profile?.academic_data?.gpa}, the AI recommends focusing on universities with acceptance rates between 40-70% for a Safe/Target mix.
                         </div>
                     </div>
                 </div>
@@ -118,16 +116,18 @@ export default async function DashboardPage() {
                 </p>
                 <div className="stats shadow bg-white">
                   <div className="stat place-items-center">
-                    <div className="stat-title">Target Country</div>
-                    <div className="stat-value text-blue-600 text-2xl">{profile?.preferences?.country || 'Any'}</div>
+                    <div className="stat-title text-gray-500 ">Target Country</div>
+                    <div className="stat-value text-blue-600 text-xl">{profile?.preferences?.country || 'Any'}</div>
                   </div>
                   <div className="stat place-items-center">
-                    <div className="stat-title">Major</div>
-                    <div className="stat-value text-blue-600 text-2xl">{profile?.academic_data?.major || 'General'}</div>
+                    <div className="stat-title text-gray-500 ">Major</div>
+                    <div className="stat-value text-blue-600 text-xl">{profile?.academic_data?.major || 'General'}</div>
                   </div>
                 </div>
-                <div className="mt-8 text-sm text-slate-400">
-                  Try asking: <em>"Find universities in {profile?.preferences?.country} for me."</em>
+                <div className="mt-8 text-sm text-slate-400 flex flex-col items-center ">
+                  <div className='mb-5' >
+                    Try asking: <em>"Find universities in {profile?.preferences?.country} for me."</em>
+                  </div>
                 </div>
               </div>
             </div>
