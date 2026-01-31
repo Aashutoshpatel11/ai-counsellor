@@ -68,7 +68,7 @@ export default async function DashboardPage() {
                 className={`step transition-all duration-300 font-bold px-4
                   ${currentStepIndex >= index 
                     ? 'step-warning text-[#4A2B5E] dark:text-[#FFC229]' 
-                    : 'text-gray-300 dark:text-gray-600'}`
+                    : 'text-gray-400 dark:text-gray-500'}`
                 }
               >
                 <span className={`mt-2 text-sm ${currentStepIndex >= index ? 'opacity-100' : 'opacity-60'}`}>{step}</span>

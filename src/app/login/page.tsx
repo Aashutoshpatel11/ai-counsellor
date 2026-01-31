@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import toast from 'react-hot-toast' // Import toast
+import Logo from '@/components/Logo'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -17,20 +19,30 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
 
+    // Optional: Dismiss previous toasts to avoid clutter
+    toast.dismiss()
+
     if (isSignUp) {
       const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-            data: { full_name: email.split('@')[0] } // Default name from email
+            data: { full_name: email.split('@')[0] } 
         }
       })
-      if (error) alert(error.message)
-      else alert('Check your email for the confirmation link!')
+      if (error) {
+        toast.error(error.message)
+      } else {
+        toast.success('Account created! Check your email to confirm.')
+      }
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
-      if (error) alert(error.message)
-      else router.push('/dashboard') // Redirect to dashboard on success
+      if (error) {
+        toast.error('Login failed. Please check your credentials.')
+      } else {
+        toast.success('Welcome back!')
+        router.push('/dashboard') 
+      }
     }
     setLoading(false)
   }
@@ -65,7 +77,7 @@ export default function LoginPage() {
         <div className="card-body p-8">
           
           {/* Logo / Header */}
-          <div className="text-center mb-6">
+          {/* <div className="text-center mb-6">
             <span className="text-4xl mb-2 block">🎓</span>
             <h2 className="text-3xl font-bold text-[#4A2B5E] dark:text-white tracking-tight">
               AI Counsellor
@@ -73,9 +85,10 @@ export default function LoginPage() {
             <p className="text-[#9CA3AF] dark:text-[#D1D5DB] mt-2 text-sm font-medium">
               {isSignUp ? 'Create your free account' : 'Welcome back, future scholar'}
             </p>
-          </div>
+          </div> */}
+          <Logo />
           
-          <form onSubmit={handleAuth} className="space-y-5">
+          <form onSubmit={handleAuth} className="space-y-5 mt-10">
             <div className="form-control">
               <label className="label">
                 <span className="label-text font-semibold text-[#1F2937] dark:text-gray-300">Email</span>
@@ -83,7 +96,7 @@ export default function LoginPage() {
               <input
                 type="email"
                 placeholder="student@example.com"
-                className="input input-bordered w-full bg-white dark:bg-[#18181B] border-gray-200 dark:border-gray-700 focus:border-[#FFC229] focus:outline-none focus:ring-2 focus:ring-[#FFC229]/20 transition-all text-[#1F2937] dark:text-white"
+                className="input input-bordered w-full bg-white dark:bg-[#18181B] border-gray-300 dark:border-gray-700 focus:border-[#FFC229] focus:outline-none focus:ring-2 focus:ring-[#FFC229]/20 transition-all text-[#1F2937] dark:text-white"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required

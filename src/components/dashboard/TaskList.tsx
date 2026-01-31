@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase'
 import { ClipboardList, Plus, Sparkles, CalendarClock } from 'lucide-react'
+import toast from 'react-hot-toast' // Import toast
 
 export default function TaskList({ userId }: { userId: string }) {
   const [tasks, setTasks] = useState<any[]>([])
@@ -72,14 +73,27 @@ export default function TaskList({ userId }: { userId: string }) {
   const addManualTask = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newTask.trim()) return
-    const { data } = await supabase.from('tasks').insert([{
+
+    // 1. Show loading feedback
+    const toastId = toast.loading("Adding task...")
+
+    // 2. Perform Insert
+    const { data, error } = await supabase.from('tasks').insert([{
       user_id: userId,
       title: newTask,
       type: 'MANUAL',
       status: 'PENDING'
     }]).select()
-    if (data) setTasks([data[0], ...tasks])
-    setNewTask('')
+
+    // 3. Handle Result
+    if (error) {
+        console.error("Task add failed:", error)
+        toast.error("Failed to add task. Please try again.", { id: toastId })
+    } else if (data) {
+        setTasks([data[0], ...tasks])
+        setNewTask('')
+        toast.success("Task added successfully!", { id: toastId })
+    }
   }
 
   const toggleTask = async (taskId: string, currentStatus: string) => {
@@ -175,9 +189,12 @@ export default function TaskList({ userId }: { userId: string }) {
                 value={newTask}
                 onChange={e => setNewTask(e.target.value)}
                 placeholder="Add your own task..." 
-                className="input input-sm flex-1 bg-white dark:bg-[#2D2D3A] border-transparent focus:border-[#FFC229] focus:outline-none dark:text-white" 
+                className="input input-sm flex-1 bg-white text-black dark:bg-[#2D2D3A] boder-black dark:border-transparent focus:border-[#FFC229] focus:outline-none dark:text-white" 
             />
-            <button type="submit" disabled={!newTask.trim()} className="btn btn-sm btn-circle bg-[#4A2B5E] dark:bg-[#FFC229] text-white dark:text-[#4A2B5E] border-none hover:scale-110 transition-transform">
+            <button 
+            type="submit" 
+            // disabled={!newTask} 
+            className="btn btn-sm btn-circle bg-[#4A2B5E] dark:bg-[#FFC229] text-white dark:text-[#4A2B5E] border-none hover:scale-110 transition-transform">
                 <Plus size={16} strokeWidth={3} />
             </button>
         </form>

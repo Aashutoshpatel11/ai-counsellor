@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase'
 import { Plus, Check, Globe, DollarSign, Trophy } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 export default function DiscoveryGrid({ userId, userGpa, country, maxBudget }: any) {
   const [unis, setUnis] = useState<any[]>([])
@@ -45,14 +46,20 @@ export default function DiscoveryGrid({ userId, userGpa, country, maxBudget }: a
   }, [country, maxBudget, userGpa])
 
   const handleAdd = async (uni: any) => {
-    await supabase.from('shortlists').insert({
+    const toastId = toast.loading(`Adding ${uni.name}...`)
+    
+    const { error } = await supabase.from('shortlists').insert({
       user_id: userId,
       university_id: uni.id,
       category: uni.match,
       ai_notes: "Added manually from discovery grid."
     })
-    // Optimistic UI update or toast could go here
-    alert(`${uni.name} added to shortlist!`)
+    
+    if (error) {
+        toast.error('Failed to add university', { id: toastId })
+    } else {
+        toast.success(`${uni.name} added to shortlist!`, { id: toastId })
+    }
   }
 
   if (loading) return (

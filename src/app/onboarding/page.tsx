@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { BookOpen, GraduationCap, Globe, DollarSign, FileText, CheckCircle2, School, Building2 } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 export default function OnboardingWizard() {
   const router = useRouter()
@@ -108,8 +109,11 @@ export default function OnboardingWizard() {
         readiness_data: { englishTest: formData.englishTest, englishScore: formData.englishScore, sopStatus: formData.sopStatus }
       }).eq('id', userId)
 
-    if (!error) router.push('/dashboard')
-    else alert('Error saving profile: ' + error.message)
+    if (!error) {
+      toast.success('Profile setup complete!')
+      router.push('/dashboard')
+    }
+    else toast.error('Error saving profile: ' + error.message)
     
     setLoading(false)
   }
