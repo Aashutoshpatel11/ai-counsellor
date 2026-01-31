@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import ThemeToggle from '@/components/ThemeToggle'
+import Logo from '@/components/Logo';
 
 export default function LandingPage() {
   const observerRef = useRef<any>(null);
@@ -54,8 +55,7 @@ export default function LandingPage() {
       <nav className="fixed w-full z-50 transition-all duration-300 bg-white/80 dark:bg-[#18181B]/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <span className="text-2xl">🎓</span>
-            <span className="text-xl font-bold tracking-tight text-[#4A2B5E] dark:text-white">AI Counsellor</span>
+            <span className="text-2xl"><Logo /></span>
           </div>
           
           <div className="flex items-center gap-6">
