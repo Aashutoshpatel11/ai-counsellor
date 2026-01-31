@@ -1,6 +1,6 @@
 'use client'
 import { useState, useRef, useEffect, useMemo } from 'react'
-import { Bot, X, Send, Sparkles } from 'lucide-react'
+import { Bot, X, Send, Mic, MicOff, Volume2, VolumeX } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
@@ -13,12 +13,17 @@ export default function ChatWidget({ userId, initialMSG=""}: { userId: string, i
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   
+  // --- VOICE STATE ---
+  const [isRecording, setIsRecording] = useState(false)
+  const [isSpeaking, setIsSpeaking] = useState(false)
+  const recognitionRef = useRef<any>(null)
+  
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null) 
 
+  // --- MARKDOWN COMPONENT ---
   const MarkdownComponent = useMemo( () => ( 
         {
-            // 1. Code Block & Inline Code Handling
             code({ node, inline, className, children, ...props }:any) {
                 const match = /language-(\w+)/.exec(className || '');
                 return !inline && match ? (
@@ -42,7 +47,6 @@ export default function ChatWidget({ userId, initialMSG=""}: { userId: string, i
                     </code>
                 );
             },
-            // 2. General Formatting Overrides
             ul: ({ children }:any) => <ul className="list-disc ml-4 my-2 space-y-1">{children}</ul>,
             ol: ({ children }:any) => <ol className="list-decimal ml-4 my-2 space-y-1">{children}</ol>,
             li: ({ children }:any) => <li className="leading-relaxed">{children}</li>,
@@ -54,6 +58,66 @@ export default function ChatWidget({ userId, initialMSG=""}: { userId: string, i
             h3: ({ children }:any) => <h3 className="text-lg font-semibold mt-4 mb-2">{children}</h3>,
         }
     ), [])
+
+  // --- VOICE INITIALIZATION (FIXED) ---
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // FIX: Cast window to 'any' to avoid TS error
+      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition
+      
+      if (SpeechRecognition) {
+        recognitionRef.current = new SpeechRecognition()
+        recognitionRef.current.continuous = false
+        recognitionRef.current.interimResults = false
+        recognitionRef.current.lang = 'en-US'
+
+        recognitionRef.current.onresult = (event: any) => {
+          const transcript = event.results[0][0].transcript
+          setInput((prev) => prev + (prev ? ' ' : '') + transcript)
+          setIsRecording(false)
+        }
+
+        recognitionRef.current.onerror = (event: any) => {
+          console.error('Speech recognition error', event.error)
+          setIsRecording(false)
+        }
+        
+        recognitionRef.current.onend = () => {
+          setIsRecording(false)
+        }
+      }
+    }
+  }, [])
+
+  // --- VOICE FUNCTIONS ---
+  const toggleRecording = () => {
+    if (!recognitionRef.current) {
+      alert("Voice input is not supported in this browser. Please use Chrome or Edge.")
+      return
+    }
+    if (isRecording) {
+      recognitionRef.current.stop()
+    } else {
+      recognitionRef.current.start()
+      setIsRecording(true)
+    }
+  }
+
+  const speakText = (text: string) => {
+    if (!isSpeaking) return
+    window.speechSynthesis.cancel()
+    
+    // Clean markdown symbols for smoother speech (optional simple regex)
+    const cleanText = text.replace(/[*#_`]/g, '')
+    
+    const utterance = new SpeechSynthesisUtterance(cleanText)
+    
+    const voices = window.speechSynthesis.getVoices()
+    const preferredVoice = voices.find(v => v.name.includes('Google US English')) || voices[0]
+    if (preferredVoice) utterance.voice = preferredVoice
+    
+    window.speechSynthesis.speak(utterance)
+  }
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -86,6 +150,11 @@ export default function ChatWidget({ userId, initialMSG=""}: { userId: string, i
         })
         const data = await res.json()
         setMessages(prev => [...prev, { role: 'assistant', content: data.content }])
+        
+        // Trigger Voice
+        if (isSpeaking) {
+            speakText(data.content)
+        }
     } catch (err) {
         console.error(err)
     } finally {
@@ -94,7 +163,7 @@ export default function ChatWidget({ userId, initialMSG=""}: { userId: string, i
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-60 flex flex-col items-end gap-4">
+    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4">
         {/* Chat Container */}
         <div 
           className={`
@@ -105,7 +174,6 @@ export default function ChatWidget({ userId, initialMSG=""}: { userId: string, i
         >
             {/* Header */}
             <div className="bg-[#4A2B5E] p-4 text-white flex justify-between items-center shadow-md shrink-0 relative overflow-hidden">
-                {/* Header Background decoration */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-[#FFC229]/20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
                 
                 <div className="flex items-center gap-3 relative z-10">
@@ -120,13 +188,24 @@ export default function ChatWidget({ userId, initialMSG=""}: { userId: string, i
                         </div>
                     </div>
                 </div>
-                <button 
-                  onClick={() => setIsOpen(false)} 
-                  className="hover:bg-white/10 p-2 rounded-full transition-colors relative z-10"
-                  aria-label="Close chat"
-                >
-                  <X className="w-5 h-5 text-white/80" />
-                </button>
+
+                <div className="flex items-center gap-1 relative z-10">
+                    <button 
+                        onClick={() => setIsSpeaking(!isSpeaking)} 
+                        className={`p-2 rounded-full transition-colors ${isSpeaking ? 'bg-[#FFC229] text-[#4A2B5E]' : 'hover:bg-white/10 text-white/80'}`}
+                        title={isSpeaking ? "Mute AI Voice" : "Enable AI Voice"}
+                    >
+                        {isSpeaking ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+                    </button>
+
+                    <button 
+                      onClick={() => setIsOpen(false)} 
+                      className="hover:bg-white/10 p-2 rounded-full transition-colors"
+                      aria-label="Close chat"
+                    >
+                      <X className="w-5 h-5 text-white/80" />
+                    </button>
+                </div>
             </div>
 
             {/* Messages Area */}
@@ -175,13 +254,30 @@ export default function ChatWidget({ userId, initialMSG=""}: { userId: string, i
 
             {/* Input Area */}
             <form onSubmit={handleSend} className="p-4 bg-white dark:bg-[#1E1E24] border-t border-gray-100 dark:border-gray-700 flex gap-3 items-center">
-                <input 
-                    ref={inputRef}
-                    className="flex-1 input input-md bg-[#F8F9FD] dark:bg-[#2D2D3A] border-transparent focus:border-[#FFC229] focus:outline-none focus:ring-2 focus:ring-[#FFC229]/50 transition-all rounded-xl px-4 text-[#1F2937] dark:text-white placeholder-gray-400" 
-                    value={input} 
-                    onChange={e => setInput(e.target.value)} 
-                    placeholder="Type your question..." 
-                />
+                <div className="flex-1 flex items-center gap-2 bg-[#F8F9FD] dark:bg-[#2D2D3A] rounded-xl px-2 border border-transparent focus-within:border-[#FFC229] focus-within:ring-2 focus-within:ring-[#FFC229]/50 transition-all">
+                    
+                    {/* Mic Button */}
+                    <button
+                        type="button"
+                        onClick={toggleRecording}
+                        className={`p-2 rounded-full transition-all ${
+                            isRecording 
+                            ? 'text-red-500 animate-pulse bg-red-500/10' 
+                            : 'text-gray-400 hover:text-[#4A2B5E] dark:hover:text-[#FFC229]'
+                        }`}
+                    >
+                        {isRecording ? <MicOff size={18} /> : <Mic size={18} />}
+                    </button>
+
+                    <input 
+                        ref={inputRef}
+                        className={`flex-1 bg-transparent border-none outline-none py-3 text-[#1F2937] dark:text-white placeholder-gray-400 ${isRecording ? 'placeholder:text-[#4A2B5E] placeholder:animate-pulse' : ''}`}
+                        value={input} 
+                        onChange={e => setInput(e.target.value)} 
+                        placeholder={isRecording ? "Listening..." : "Type your question..."} 
+                    />
+                </div>
+
                 <button 
                     type="submit" 
                     disabled={!input.trim() || loading}
@@ -202,7 +298,6 @@ export default function ChatWidget({ userId, initialMSG=""}: { userId: string, i
             `} 
             onClick={() => setIsOpen(!isOpen)}
         >
-            {/* Glow Effect behind button */}
             {!isOpen && (
                 <span className="absolute inset-0 rounded-full bg-[#FFC229] animate-ping opacity-75 duration-1000 -z-10"></span>
             )}

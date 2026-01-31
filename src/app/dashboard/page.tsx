@@ -218,7 +218,7 @@ export default async function DashboardPage() {
                 </div>
 
                 {/* Quick Actions */}
-                <div className="grid grid-cols-2 gap-4">
+                {/* <div className="grid grid-cols-2 gap-4">
                    <button className="btn h-auto py-6 bg-white dark:bg-[#1E1E24] border-gray-100 dark:border-gray-800 hover:border-[#FFC229] hover:shadow-lg text-[#4A2B5E] dark:text-white shadow-sm flex flex-col gap-2 transition-all group">
                     <span className="text-2xl group-hover:scale-110 transition-transform">📥</span>
                     Download Guide
@@ -227,7 +227,7 @@ export default async function DashboardPage() {
                     <span className="text-2xl group-hover:scale-110 transition-transform">✈️</span>
                     Visa Info
                    </button>
-                </div>
+                </div> */}
               </div>
 
               {/* Task List */}
