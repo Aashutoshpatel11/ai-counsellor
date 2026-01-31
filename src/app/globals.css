@@ -1,38 +1,51 @@
-/* src/app/globals.css */
 @import "tailwindcss";
 @plugin "daisyui";
 
-/* Light Mode (Default) */
-:root, [data-theme="light"] {
+/* 1. LINK DARK MODE: Tell Tailwind to activate 'dark:' classes when data-theme is 'dark' */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+/* 2. DEFINE VARIABLES */
+:root {
+  /* Light Mode Values */
   --color-brand-primary: #FFC229;
   --color-brand-secondary: #4A2B5E;
+  
   --bg-main: #F8F9FD;
   --bg-surface: #FFFFFF;
+  
   --text-heading: #1F2937;
   --text-body: #9CA3AF;
+  
   --accent-blue: #2F80ED;
   --accent-red: #EF4444;
 }
 
-/* Dark Mode */
 [data-theme="dark"] {
+  /* Dark Mode Overrides */
   --color-brand-primary: #FFC229; 
   --color-brand-secondary: #2D2D3A;
+  
   --bg-main: #18181B;
   --bg-surface: #23232A;
+  
   --text-heading: #FFFFFF;
   --text-body: #D1D5DB;
 }
 
+/* 3. CONFIGURE THEME */
 @theme {
+  /* Map your custom variables to Tailwind utility classes */
   --color-primary: var(--color-brand-primary);
   --color-secondary: var(--color-brand-secondary);
+  
   --color-background: var(--bg-main);
   --color-surface: var(--bg-surface);
+  
   --color-heading: var(--text-heading);
   --color-body: var(--text-body);
 }
 
+/* 4. APPLY GLOBAL STYLES */
 body {
   background-color: var(--bg-main);
   color: var(--text-heading);

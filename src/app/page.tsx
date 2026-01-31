@@ -65,14 +65,6 @@ export default function LandingPage() {
               <a href="#pricing" className="hover:text-[#4A2B5E] dark:hover:text-[#FFC229] transition-colors">Pricing</a>
             </div>
             
-            {/* Theme Toggle Button */}
-            {/* <button 
-              onClick={toggleTheme} 
-              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-xl"
-              aria-label="Toggle Dark Mode"
-            >
-              {isDark ? '☀️' : '🌙'}
-            </button> */}
             <ThemeToggle />
 
             <Link href="/login" className="btn bg-[#FFC229] hover:bg-[#E5AC24] text-[#1F2937] border-none font-bold px-6 rounded-full shadow-md hover:shadow-lg transition-all duration-300">

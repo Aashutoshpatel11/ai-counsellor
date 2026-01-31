@@ -13,6 +13,7 @@ export default async function DashboardPage() {
   const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
 
   const currentStage = profile?.current_stage || 'PROFILE'
+  // const currentStage = 'APPLICATION'
 
   const stepIndices: Record<string, number> = {
     'PROFILE': 0,
@@ -154,7 +155,7 @@ export default async function DashboardPage() {
                     Ask me: <span className="font-bold text-[#4A2B5E] dark:text-[#FFC229]">"Find computer science universities in Canada under $30k"</span>
                   </p>
                   
-                  <div className="flex justify-center gap-4 flex-wrap">
+                  <div className="flex justify-center gap-4 flex-wrap text-[#1F2937] dark:text-white">
                      <div className="px-6 py-3 rounded-full bg-[#F8F9FD] dark:bg-white/5 border border-gray-200 dark:border-white/10 text-sm font-medium">
                         Target: {profile?.preferences?.country || 'Global'}
                      </div>
