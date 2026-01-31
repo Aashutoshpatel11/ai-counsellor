@@ -1,63 +1,40 @@
+/* src/app/globals.css */
 @import "tailwindcss";
 @plugin "daisyui";
 
-/* --- 1. Define Source Variables --- */
-:root {
-  /* Brand Colors */
-  --color-brand-primary: #FFC229;   /* Golden Yellow */
-  --color-brand-secondary: #4A2B5E; /* Deep Plum */
-  
-  /* Backgrounds */
-  --bg-main: #F8F9FD;    /* App Background */
-  --bg-surface: #FFFFFF; /* Card Background */
-  
-  /* Text */
+/* Light Mode (Default) */
+:root, [data-theme="light"] {
+  --color-brand-primary: #FFC229;
+  --color-brand-secondary: #4A2B5E;
+  --bg-main: #F8F9FD;
+  --bg-surface: #FFFFFF;
   --text-heading: #1F2937;
   --text-body: #9CA3AF;
-  
-  /* Accents */
   --accent-blue: #2F80ED;
   --accent-red: #EF4444;
 }
 
-/* Dark Mode Overrides */
-.dark {
+/* Dark Mode */
+[data-theme="dark"] {
   --color-brand-primary: #FFC229; 
-  --color-brand-secondary: #2D2D3A; /* Gunmetal */
-  
-  --bg-main: #18181B;    /* Dark Background */
-  --bg-surface: #23232A; /* Dark Card Surface */
-  
+  --color-brand-secondary: #2D2D3A;
+  --bg-main: #18181B;
+  --bg-surface: #23232A;
   --text-heading: #FFFFFF;
   --text-body: #D1D5DB;
 }
 
-/* --- 2. Map Variables to Tailwind Utilities --- */
-/* This creates classes like: bg-primary, text-heading, bg-surface, etc. */
 @theme {
   --color-primary: var(--color-brand-primary);
   --color-secondary: var(--color-brand-secondary);
-  
   --color-background: var(--bg-main);
   --color-surface: var(--bg-surface);
-  
   --color-heading: var(--text-heading);
   --color-body: var(--text-body);
-  
-  --color-accent-blue: var(--accent-blue);
-  --color-accent-red: var(--accent-red);
-
-  /* Font settings (kept from your original code) */
-  --font-sans: var(--font-geist-sans), Arial, sans-serif;
-  --font-mono: var(--font-geist-mono), monospace;
 }
 
-/* --- 3. Global Styles --- */
 body {
   background-color: var(--bg-main);
   color: var(--text-heading);
-  font-family: var(--font-sans);
-  
-  /* Smooth transition for theme switching */
   transition: background-color 0.3s ease, color 0.3s ease;
 }

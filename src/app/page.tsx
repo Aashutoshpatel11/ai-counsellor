@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
+import ThemeToggle from '@/components/ThemeToggle'
 
 export default function LandingPage() {
   const observerRef = useRef<any>(null);
@@ -38,10 +39,10 @@ export default function LandingPage() {
     const newTheme = !isDark;
     setIsDark(newTheme);
     if (newTheme) {
-      document.documentElement.classList.add('dark');
+      document.body.classList.add('dark');
       localStorage.setItem('theme', 'dark');
     } else {
-      document.documentElement.classList.remove('dark');
+      document.body.classList.remove('dark');
       localStorage.setItem('theme', 'light');
     }
   };
@@ -65,13 +66,14 @@ export default function LandingPage() {
             </div>
             
             {/* Theme Toggle Button */}
-            <button 
+            {/* <button 
               onClick={toggleTheme} 
               className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-xl"
               aria-label="Toggle Dark Mode"
             >
               {isDark ? '☀️' : '🌙'}
-            </button>
+            </button> */}
+            <ThemeToggle />
 
             <Link href="/login" className="btn bg-[#FFC229] hover:bg-[#E5AC24] text-[#1F2937] border-none font-bold px-6 rounded-full shadow-md hover:shadow-lg transition-all duration-300">
               Login
