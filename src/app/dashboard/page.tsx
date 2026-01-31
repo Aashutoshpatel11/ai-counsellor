@@ -5,7 +5,7 @@ import ShortlistTable from '@/components/dashboard/ShortlistTable'
 import TaskList from '@/components/dashboard/TaskList'
 import StartDiscoveryButton from '@/components/dashboard/StartDiscoveryButton'
 import DiscoveryGrid from '@/components/dashboard/DiscoveryGrid'
-import ProceedToShortlistButton from '@/components/dashboard/ProceedToShortlistButton' // Import the new button
+import ProceedToShortlistButton from '@/components/dashboard/ProceedToShortlistButton' 
 import { Edit3, Search, Lightbulb } from 'lucide-react'
 
 export default async function DashboardPage() {
@@ -28,6 +28,14 @@ export default async function DashboardPage() {
     'APPLICATION': 3
   }
   const currentStepIndex = stepIndices[currentStage] || 0
+
+  // Check if user has items in shortlist (for Discovery phase button logic)
+  const { count: shortlistCount } = await supabase
+      .from('shortlists')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+  
+  const hasShortlist = (shortlistCount || 0) > 0
 
   return (
     <div className="min-h-screen pb-20 relative transition-colors duration-500 bg-[#F8F9FD] dark:bg-[#0a0a0a] selection:bg-[#FFC229] selection:text-[#4A2B5E]">
@@ -166,7 +174,7 @@ export default async function DashboardPage() {
               />
 
               {/* NEW: Button to proceed if universities are shortlisted */}
-              <ProceedToShortlistButton userId={user.id} />
+              <ProceedToShortlistButton userId={user.id} showButton={hasShortlist} />
 
               {/* AI Guidance Box */}
               <div className="bg-[#4A2B5E] dark:bg-[#1E1E24] p-6 rounded-2xl text-white border border-[#4A2B5E] dark:border-gray-700 flex flex-col md:flex-row items-center justify-between gap-4 shadow-lg">

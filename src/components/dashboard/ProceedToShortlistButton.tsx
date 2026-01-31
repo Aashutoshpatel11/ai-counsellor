@@ -1,35 +1,18 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { createClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { ArrowRight } from 'lucide-react'
 
-export default function ProceedToShortlistButton({ userId }: { userId: string }) {
-  const [hasShortlist, setHasShortlist] = useState(false)
+interface ProceedToShortlistButtonProps {
+  userId: string;
+  showButton: boolean;
+}
+
+export default function ProceedToShortlistButton({ userId, showButton }: ProceedToShortlistButtonProps) {
   const [loading, setLoading] = useState(false)
   const supabase = createClient()
   const router = useRouter()
-
-  const checkShortlist = async () => {
-    const { count } = await supabase
-      .from('shortlists')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId)
-    
-    setHasShortlist((count || 0) > 0)
-  }
-
-  useEffect(() => {
-    checkShortlist()
-    // Subscribe to realtime changes so the button appears instantly when a user adds a uni
-    const channel = supabase.channel('shortlist_check')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'shortlists', filter: `user_id=eq.${userId}` }, () => {
-        checkShortlist()
-      })
-      .subscribe()
-      
-    return () => { supabase.removeChannel(channel) }
-  }, [userId])
 
   const handleProceed = async () => {
     setLoading(true)
@@ -46,7 +29,7 @@ export default function ProceedToShortlistButton({ userId }: { userId: string })
     }
   }
 
-  if (!hasShortlist) return null
+  if (!showButton) return null
 
   return (
     <div className="flex justify-end mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500">

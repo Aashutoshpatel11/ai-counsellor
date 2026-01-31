@@ -3,11 +3,13 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase'
 import { Plus, Check, Globe, DollarSign, Trophy } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { useRouter } from 'next/navigation'
 
 export default function DiscoveryGrid({ userId, userGpa, country, maxBudget }: any) {
   const [unis, setUnis] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
+  const router = useRouter()
 
   useEffect(() => {
     async function getRecommendations() {
@@ -59,6 +61,7 @@ export default function DiscoveryGrid({ userId, userGpa, country, maxBudget }: a
         toast.error('Failed to add university', { id: toastId })
     } else {
         toast.success(`${uni.name} added to shortlist!`, { id: toastId })
+        router.refresh()
     }
   }
 
