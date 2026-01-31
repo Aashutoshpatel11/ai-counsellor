@@ -1,6 +1,6 @@
 'use client'
 import { useState, useRef, useEffect, useMemo } from 'react'
-import {Bot, X} from 'lucide-react'
+import { Bot, X, Send, Sparkles } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
@@ -22,9 +22,9 @@ export default function ChatWidget({ userId, initialMSG=""}: { userId: string, i
             code({ node, inline, className, children, ...props }:any) {
                 const match = /language-(\w+)/.exec(className || '');
                 return !inline && match ? (
-                    <div className="relative my-4 overflow-hidden rounded-md border border-white/10 bg-black/50">
-                        <div className="flex items-center justify-between bg-zinc-900/50 px-4 py-1.5 border-b border-white/5">
-                            <span className="text-xs text-zinc-400 font-mono">{match[1]}</span>
+                    <div className="relative my-4 overflow-hidden rounded-md border border-white/10 bg-[#1E1E24]">
+                        <div className="flex items-center justify-between bg-[#2D2D3A] px-4 py-1.5 border-b border-white/5">
+                            <span className="text-xs text-gray-400 font-mono">{match[1]}</span>
                         </div>
                         <SyntaxHighlighter
                             style={vscDarkPlus}
@@ -37,7 +37,7 @@ export default function ChatWidget({ userId, initialMSG=""}: { userId: string, i
                         </SyntaxHighlighter>
                     </div>
                 ) : (
-                    <code className="bg-zinc-700/50 text-zinc-200 px-1.5 py-0.5 rounded text-sm font-mono border border-white/5" {...props}>
+                    <code className="bg-black/10 dark:bg-white/10 text-[#4A2B5E] dark:text-[#FFC229] px-1.5 py-0.5 rounded text-sm font-mono border border-black/5 dark:border-white/5" {...props}>
                         {children}
                     </code>
                 );
@@ -47,13 +47,11 @@ export default function ChatWidget({ userId, initialMSG=""}: { userId: string, i
             ol: ({ children }:any) => <ol className="list-decimal ml-4 my-2 space-y-1">{children}</ol>,
             li: ({ children }:any) => <li className="leading-relaxed">{children}</li>,
             p: ({ children }:any) => <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>,
-            strong: ({ children }:any) => <span className="font-semibold text-gray-500">{children}</span>,
-            a: ({ children, href }:any) => <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">{children}</a>,
-            h1: ({ children }:any) => <h1 className="text-3xl font-bold text-gray-500 mt-10 mb-4">{children}</h1>,
-            h2: ({ children }:any) => <h2 className="text-2xl font-bold text-gray-500 mt-10 mb-3 border-b border-white/40 pb-2">{children}</h2>,
-            h3: ({ children }:any) => <h3 className="text-lg font-semibold text-gray-500 mt-6 mb-2">{children}</h3>,
-            h4: ({ children }:any) => <h4 className="text-base font-semibold text-gray-500 mt-6 mb-2">{children}</h4>,
-            br: ({ children }:any) => <h4 className="border-b-2 border-black/20 my-3">{children}</h4>,
+            strong: ({ children }:any) => <span className="font-bold text-[#4A2B5E] dark:text-[#FFC229]">{children}</span>,
+            a: ({ children, href }:any) => <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline decoration-2 underline-offset-2">{children}</a>,
+            h1: ({ children }:any) => <h1 className="text-2xl font-bold mt-6 mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">{children}</h1>,
+            h2: ({ children }:any) => <h2 className="text-xl font-bold mt-5 mb-2">{children}</h2>,
+            h3: ({ children }:any) => <h3 className="text-lg font-semibold mt-4 mb-2">{children}</h3>,
         }
     ), [])
 
@@ -86,7 +84,6 @@ export default function ChatWidget({ userId, initialMSG=""}: { userId: string, i
             method: 'POST',
             body: JSON.stringify({ messages: [...messages, userMsg], userId: userId })
         })
-        console.log("AGENT RESPONSE :: :: :", res )
         const data = await res.json()
         setMessages(prev => [...prev, { role: 'assistant', content: data.content }])
     } catch (err) {
@@ -97,46 +94,66 @@ export default function ChatWidget({ userId, initialMSG=""}: { userId: string, i
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
+    <div className="fixed bottom-6 right-6 z-60 flex flex-col items-end gap-4">
+        {/* Chat Container */}
         <div 
           className={`
-            transform transition-all duration-300 ease-in-out origin-bottom-right
-            ${isOpen ? 'scale-100 opacity-100 translate-y-0' : 'scale-95 opacity-0 translate-y-4 pointer-events-none hidden'}
-            bg-white w-96 h-150 rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden
+            transform transition-all duration-400 ease-[cubic-bezier(0.34,1.56,0.64,1)] origin-bottom-right
+            ${isOpen ? 'scale-100 opacity-100 translate-y-0' : 'scale-95 opacity-0 translate-y-10 pointer-events-none'}
+            bg-white dark:bg-[#1E1E24] w-100 h-150 max-h-[80vh] rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden
           `}
         >
             {/* Header */}
-            <div className="bg-linear-to-r from-blue-600 to-blue-700 p-4 text-white flex justify-between items-center shadow-md shrink-0">
-                <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-                    <span className="font-bold tracking-wide">AI Counsellor</span>
+            <div className="bg-[#4A2B5E] p-4 text-white flex justify-between items-center shadow-md shrink-0 relative overflow-hidden">
+                {/* Header Background decoration */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-[#FFC229]/20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
+                
+                <div className="flex items-center gap-3 relative z-10">
+                    <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center border border-white/20">
+                       <Bot className="w-6 h-6 text-[#FFC229]" />
+                    </div>
+                    <div>
+                        <h3 className="font-bold text-lg leading-none">AI Counsellor</h3>
+                        <div className="flex items-center gap-1.5 mt-1">
+                            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+                            <span className="text-[10px] font-medium tracking-wide uppercase opacity-80">Online</span>
+                        </div>
+                    </div>
                 </div>
                 <button 
                   onClick={() => setIsOpen(false)} 
-                  className="hover:bg-white/20 p-1 rounded-full transition-colors"
+                  className="hover:bg-white/10 p-2 rounded-full transition-colors relative z-10"
                   aria-label="Close chat"
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                  <X className="w-5 h-5 text-white/80" />
                 </button>
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50" ref={scrollRef}>
+            <div className="flex-1 overflow-y-auto p-4 space-y-6 bg-[#F8F9FD] dark:bg-[#18181B] scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700" ref={scrollRef}>
                 {messages.length === 0 && (
-                    <div className="flex flex-col items-center justify-center h-full text-slate-400 text-sm gap-2">
-                        <span className="text-4xl">👋</span>
-                        <p>Hi! How can I help you today?</p>
+                    <div className="flex flex-col items-center justify-center h-full text-center p-6 animate-in fade-in zoom-in duration-500">
+                        <div className="w-16 h-16 bg-[#FFC229]/20 rounded-2xl flex items-center justify-center mb-4 text-4xl">
+                           👋
+                        </div>
+                        <h4 className="text-[#4A2B5E] dark:text-white font-bold text-lg mb-2">Hi there!</h4>
+                        <p className="text-gray-500 dark:text-gray-400 text-sm max-w-50">
+                            I'm your personal university guide. Ask me anything about admissions, visas, or universities!
+                        </p>
                     </div>
                 )}
                 
                 {messages.map((m, i) => (
                     <div key={i} className={`flex w-full ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                         <div className={`
-                            max-w-[80%] p-3 text-sm shadow-sm
+                            max-w-[85%] p-4 text-sm shadow-sm relative group
                             ${m.role === 'user' 
-                                ? 'bg-blue-600 text-white rounded-2xl rounded-br-none' 
-                                : 'bg-white text-slate-700 border border-slate-100 rounded-2xl rounded-bl-none'}
+                                ? 'bg-[#FFC229] text-[#1F2937] rounded-2xl rounded-br-none' 
+                                : 'bg-white dark:bg-[#2D2D3A] text-[#1F2937] dark:text-gray-200 border border-gray-100 dark:border-gray-700 rounded-2xl rounded-bl-none'}
                         `}>
+                            {m.role === 'assistant' && (
+                                <div className="absolute -left-2 -bottom-2 w-4 h-4 bg-white dark:bg-[#2D2D3A] transform rotate-45"></div>
+                            )}
                             <ReactMarkdown
                              remarkPlugins={[remarkGfm, remarkBreaks]}
                              components={MarkdownComponent}
@@ -147,42 +164,50 @@ export default function ChatWidget({ userId, initialMSG=""}: { userId: string, i
                 
                 {loading && (
                     <div className="flex justify-start w-full">
-                        <div className="bg-white border border-slate-100 p-3 rounded-2xl rounded-bl-none shadow-sm flex gap-1 items-center">
-                            <span className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></span>
-                            <span className="w-2 h-2 bg-blue-400 rounded-full animate-bounce delay-75"></span>
-                            <span className="w-2 h-2 bg-blue-400 rounded-full animate-bounce delay-150"></span>
+                        <div className="bg-white dark:bg-[#2D2D3A] border border-gray-100 dark:border-gray-700 p-4 rounded-2xl rounded-bl-none shadow-sm flex gap-2 items-center">
+                            <span className="w-2 h-2 bg-[#4A2B5E] dark:bg-[#FFC229] rounded-full animate-bounce"></span>
+                            <span className="w-2 h-2 bg-[#4A2B5E] dark:bg-[#FFC229] rounded-full animate-bounce delay-75"></span>
+                            <span className="w-2 h-2 bg-[#4A2B5E] dark:bg-[#FFC229] rounded-full animate-bounce delay-150"></span>
                         </div>
                     </div>
                 )}
             </div>
 
             {/* Input Area */}
-            <form onSubmit={handleSend} className="p-3 bg-white border-t border-slate-100 flex gap-2 items-center">
+            <form onSubmit={handleSend} className="p-4 bg-white dark:bg-[#1E1E24] border-t border-gray-100 dark:border-gray-700 flex gap-3 items-center">
                 <input 
                     ref={inputRef}
-                    className="flex-1 input input-sm bg-slate-100 border-transparent focus:border-blue-500 focus:bg-white transition-all rounded-full px-4" 
+                    className="flex-1 input input-md bg-[#F8F9FD] dark:bg-[#2D2D3A] border-transparent focus:border-[#FFC229] focus:outline-none focus:ring-2 focus:ring-[#FFC229]/50 transition-all rounded-xl px-4 text-[#1F2937] dark:text-white placeholder-gray-400" 
                     value={input} 
                     onChange={e => setInput(e.target.value)} 
-                    placeholder="Type your message..." 
+                    placeholder="Type your question..." 
                 />
                 <button 
                     type="submit" 
                     disabled={!input.trim() || loading}
-                    className="btn btn-sm btn-circle btn-primary disabled:bg-slate-200 disabled:text-slate-400 transition-transform active:scale-95"
+                    className="btn btn-md btn-circle bg-[#4A2B5E] hover:bg-[#3d234d] text-white border-none disabled:bg-gray-200 disabled:text-gray-400 dark:disabled:bg-gray-800 transition-all shadow-md hover:shadow-lg hover:scale-105"
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                    <Send size={18} className={input.trim() ? 'ml-0.5' : ''} />
                 </button>
             </form>
         </div>
 
+        {/* Floating Toggle Button */}
         <button 
             className={`
-                btn btn-circle btn-lg shadow-xl border-4 border-white transition-all duration-300
-                ${isOpen ? 'btn-error rotate-90' : 'btn-primary hover:scale-110'}
+                btn btn-circle w-16 h-16 shadow-2xl border-none transition-all duration-500 relative z-50
+                ${isOpen 
+                    ? 'bg-[#1E1E24] text-white hover:bg-black rotate-90' 
+                    : 'bg-[#FFC229] text-[#4A2B5E] hover:bg-[#ffc947] hover:scale-110 hover:-translate-y-1'}
             `} 
             onClick={() => setIsOpen(!isOpen)}
         >
-            {isOpen ? <X/> : <Bot />}
+            {/* Glow Effect behind button */}
+            {!isOpen && (
+                <span className="absolute inset-0 rounded-full bg-[#FFC229] animate-ping opacity-75 duration-1000 -z-10"></span>
+            )}
+            
+            {isOpen ? <X size={32}/> : <Bot size={32} />}
         </button>
     </div>
   )
