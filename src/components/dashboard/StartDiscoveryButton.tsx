@@ -1,7 +1,7 @@
 'use client'
-import { useState } from 'react'
 import { createClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 
 export default function StartDiscoveryButton({ userId }: { userId: string }) {
   const [loading, setLoading] = useState(false)
@@ -10,31 +10,27 @@ export default function StartDiscoveryButton({ userId }: { userId: string }) {
 
   const handleStart = async () => {
     setLoading(true)
-    // Update stage to DISCOVERY
+    // IMPORTANT: This moves the user from PROFILE -> DISCOVERY stage
     const { error } = await supabase
       .from('profiles')
       .update({ current_stage: 'DISCOVERY' })
       .eq('id', userId)
 
-    if (error) {
-      alert('Error updating stage')
+    if (!error) {
+      router.refresh() // Refresh to update the Server Component (Dashboard)
     } else {
-      router.refresh() // Refresh page to show new stage
+      console.error("Update failed:", error.message)
     }
     setLoading(false)
   }
 
   return (
     <button 
-      className="btn bg-[#FFC229] hover:bg-[#E5AC24] text-[#1F2937] border-none btn-lg w-full font-bold text-lg shadow-xl hover:shadow-2xl hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
       onClick={handleStart}
       disabled={loading}
+      className="btn w-full bg-[#FFC229] hover:bg-[#F59E0B] text-[#4A2B5E] border-none font-black text-lg py-4 h-auto shadow-lg"
     >
-      {loading ? (
-        <span className="loading loading-spinner loading-md text-[#1F2937]"></span>
-      ) : (
-        "Find My Universities →"
-      )}
+      {loading ? <span className="loading loading-spinner"></span> : "Begin Search"}
     </button>
   )
 }

@@ -1,8 +1,12 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import ShortlistTable from '@/components/dashboard/ShortlistTable'
 import TaskList from '@/components/dashboard/TaskList'
 import StartDiscoveryButton from '@/components/dashboard/StartDiscoveryButton'
+import DiscoveryGrid from '@/components/dashboard/DiscoveryGrid'
+import ProceedToShortlistButton from '@/components/dashboard/ProceedToShortlistButton' // Import the new button
+import { Edit3, Search, Lightbulb } from 'lucide-react'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -16,7 +20,6 @@ export default async function DashboardPage() {
   }
 
   const currentStage = profile?.current_stage || 'PROFILE'
-  // const currentStage = 'APPLICATION'
 
   const stepIndices: Record<string, number> = {
     'PROFILE': 0,
@@ -77,94 +80,103 @@ export default async function DashboardPage() {
         {/* --- MAIN STAGE CONTENT --- */}
         <div className="min-h-125">
 
-        {/* === STAGE 0: PROFILE === */}
+          {/* === STAGE 0: PROFILE === */}
           {currentStage === 'PROFILE' && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
                 
               {/* Left: Analysis Card */}
-              <div className="card bg-white/80 dark:bg-[#1E1E24]/80 backdrop-blur-md border border-white/20 dark:border-white/5 shadow-xl hover:shadow-2xl transition-all duration-300">
+              <div className="card bg-white/80 dark:bg-[#1E1E24]/80 backdrop-blur-md border border-white/20 dark:border-white/5 shadow-xl">
                   <div className="card-body p-8">
                       <div className="flex justify-between items-center mb-6">
                         <h2 className="text-2xl font-bold text-[#4A2B5E] dark:text-white flex items-center gap-2">
                           📊 Profile Insights
                         </h2>
-                        <span className="badge badge-ghost font-mono text-xs">Updated Just Now</span>
+                        <Link href="/onboarding" className="btn btn-ghost btn-xs gap-1 text-[#4A2B5E] dark:text-[#FFC229] font-bold hover:bg-[#FFC229]/10">
+                           <Edit3 size={14}/> Manual Edit
+                        </Link>
                       </div>
                       
                       <div className="grid grid-cols-2 gap-6">
-                          <div className="p-4 rounded-2xl bg-[#F8F9FD] dark:bg-white/5 border border-transparent hover:border-[#FFC229]/50 transition-colors">
-                              <p className="text-xs font-bold text-[#9CA3AF] uppercase tracking-wider mb-2">GPA Strength</p>
+                          <div className="p-4 rounded-2xl bg-[#F8F9FD] dark:bg-white/5 border border-transparent">
+                              <p className="text-xs font-bold text-[#9CA3AF] dark:text-gray-400 uppercase tracking-wider mb-2">GPA Strength</p>
                               <div className="text-4xl font-black text-[#1F2937] dark:text-white">
-                                  {profile?.academic_data?.gpa}
+                                  {profile?.academic_data?.gpa || '0.0'}
                               </div>
                               <p className="text-xs font-medium text-[#4A2B5E] dark:text-[#FFC229] mt-2">
                                   Top 15% bracket
                               </p>
                           </div>
 
-                          <div className="p-4 rounded-2xl bg-[#F8F9FD] dark:bg-white/5 border border-transparent hover:border-[#FFC229]/50 transition-colors">
-                              <p className="text-xs font-bold text-[#9CA3AF] uppercase tracking-wider mb-2">Budget / Year</p>
+                          <div className="p-4 rounded-2xl bg-[#F8F9FD] dark:bg-white/5 border border-transparent">
+                              <p className="text-xs font-bold text-[#9CA3AF] dark:text-gray-400 uppercase tracking-wider mb-2">Budget / Year</p>
                               <div className="text-3xl font-black text-[#1F2937] dark:text-white truncate">
-                                  ${(profile?.preferences?.budget / 1000)}k
+                                  ${(profile?.preferences?.budget / 1000) || '0'}k
                               </div>
-                              <p className="text-xs font-medium text-gray-500 mt-2 truncate">
-                                  {profile?.preferences?.country}
+                              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mt-2 truncate">
+                                  {profile?.preferences?.country || 'Global'}
                               </p>
                           </div>
                       </div>
 
-                      <div className="mt-6 p-4 rounded-xl bg-[#FFC229]/10 border border-[#FFC229]/20 text-sm text-[#4A2B5E] dark:text-[#D1D5DB] flex gap-3 items-start">
-                          <span className="text-xl">💡</span>
-                          <span className="leading-relaxed">Based on your academic profile, our AI suggests targeting universities with acceptance rates between <strong>40-70%</strong> for optimal success.</span>
+                      <div className="mt-6 p-4 rounded-xl bg-[#FFC229]/10 border border-[#FFC229]/20 text-sm text-[#4A2B5E] dark:text-[#e5e7eb] flex gap-3 items-start">
+                          <Lightbulb className="shrink-0 w-5 h-5 text-[#FFC229]" />
+                          <span className="leading-relaxed">Based on your academic profile, our AI suggests targeting universities with acceptance rates between <strong>40-70%</strong>.</span>
                       </div>
                   </div>
               </div>
 
               {/* Right: Action Card */}
-              <div className="card bg-gradient-to-br from-[#4A2B5E] to-[#2D2D3A] text-white shadow-2xl shadow-[#4A2B5E]/30 relative overflow-hidden group">
-                  {/* Decorative Elements */}
-                  <div className="absolute top-0 right-0 w-80 h-80 bg-[#FFC229]/10 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2 group-hover:bg-[#FFC229]/20 transition-all duration-700"></div>
-                  <div className="absolute bottom-0 left-0 w-60 h-60 bg-purple-500/10 rounded-full blur-3xl -translate-x-1/2 translate-y-1/2"></div>
+              <div className="card bg-gradient-to-br from-[#4A2B5E] to-[#2D2D3A] text-white shadow-2xl relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-[#FFC229]/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
                   
                   <div className="card-body justify-center items-center text-center relative z-10 p-10">
                       <div className="text-8xl mb-6 transform group-hover:-translate-y-2 transition-transform duration-500">🚀</div>
-                      <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready for Blastoff?</h2>
+                      <h2 className="text-3xl md:text-4xl font-bold mb-4">Start AI Discovery</h2>
                       <p className="text-gray-300 text-lg mb-8 max-w-md leading-relaxed">
-                          Your profile is locked in. Activate the engine to start matching with your top universities instantly.
+                          Your profile is ready. Activate the engine to generate your personalized university list.
                       </p>
-                      <div className="w-full max-w-xs relative group/btn">
-                          <div className="absolute -inset-1 bg-gradient-to-r from-[#FFC229] to-orange-400 rounded-lg blur opacity-25 group-hover/btn:opacity-75 transition duration-200"></div>
-                          <StartDiscoveryButton userId={user.id} /> 
+                      <div className="w-full max-w-xs relative">
+                          <StartDiscoveryButton userId={user.id} />
                       </div>
                   </div>
               </div>
-
             </div>
           )}
           
-          {/* === STAGE 1: DISCOVERY === */}
+          {/* === STAGE 1: DISCOVERY (Updated) === */}
           {currentStage === 'DISCOVERY' && (
-            <div className="hero min-h-100 bg-white dark:bg-[#1E1E24] rounded-3xl shadow-xl border border-gray-100 dark:border-gray-800 animate-in fade-in zoom-in-95 duration-500 overflow-hidden relative">
-              
-              {/* Grid Pattern Background */}
-              <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
-              
-              <div className="hero-content text-center relative z-10">
-                <div className="max-w-2xl">
-                  <span className="badge bg-[#FFC229] text-[#1F2937] border-none mb-6 font-bold">AI Assistant Active</span>
-                  <h2 className="text-5xl font-black text-[#4A2B5E] dark:text-white mb-6">Start Your Search</h2>
-                  <p className="text-xl text-gray-500 dark:text-gray-300 mb-10 leading-relaxed">
-                    Look at the bottom right 👉 <br/>
-                    Ask me: <span className="font-bold text-[#4A2B5E] dark:text-[#FFC229]">"Find computer science universities in Canada under $30k"</span>
+            <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500">
+              <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                  <h2 className="text-3xl font-black text-[#4A2B5E] dark:text-white flex items-center gap-3">
+                    <Search className="text-[#FFC229] w-8 h-8" /> Recommended for You
+                  </h2>
+                  <p className="text-gray-500 dark:text-gray-400 font-medium mt-1">
+                    Best matches for <span className="text-[#4A2B5E] dark:text-[#FFC229] font-bold">{profile?.academic_data?.major || 'your profile'}</span> in {profile?.preferences?.country || 'Global'}.
                   </p>
-                  
-                  <div className="flex justify-center gap-4 flex-wrap text-[#1F2937] dark:text-white">
-                     <div className="px-6 py-3 rounded-full bg-[#F8F9FD] dark:bg-white/5 border border-gray-200 dark:border-white/10 text-sm font-medium">
-                        Target: {profile?.preferences?.country || 'Global'}
-                     </div>
-                     <div className="px-6 py-3 rounded-full bg-[#F8F9FD] dark:bg-white/5 border border-gray-200 dark:border-white/10 text-sm font-medium">
-                        Major: {profile?.academic_data?.major || 'Undecided'}
-                     </div>
+                </div>
+              </div>
+
+              {/* Dynamic Auto-List Component */}
+              <DiscoveryGrid 
+                userId={user.id} 
+                userGpa={profile?.academic_data?.gpa}
+                country={profile?.preferences?.country}
+                maxBudget={profile?.preferences?.budget}
+              />
+
+              {/* NEW: Button to proceed if universities are shortlisted */}
+              <ProceedToShortlistButton userId={user.id} />
+
+              {/* AI Guidance Box */}
+              <div className="bg-[#4A2B5E] dark:bg-[#1E1E24] p-6 rounded-2xl text-white border border-[#4A2B5E] dark:border-gray-700 flex flex-col md:flex-row items-center justify-between gap-4 shadow-lg">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center text-2xl">🤖</div>
+                  <div>
+                    <h4 className="font-bold text-lg">Want more options?</h4>
+                    <p className="text-sm text-gray-300">
+                      Use the <strong>AI Chat</strong> (bottom right) to filter by scholarship, campus life, or more.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -176,8 +188,8 @@ export default async function DashboardPage() {
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
               <div className="alert bg-[#FFC229]/10 border-l-4 border-[#FFC229] text-[#4A2B5E] dark:text-gray-200 shadow-sm rounded-r-xl">
                 <div className="flex items-center gap-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-[#FFC229] shrink-0 w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <span className="font-medium">Review your list below. Ask the AI to <span className="font-bold border-b-2 border-[#FFC229]">"Lock"</span> a university to proceed to application.</span>
+                    <span className="text-xl">🔒</span>
+                    <span className="font-medium">Review your list below. Click <span className="font-bold border-b-2 border-[#FFC229]">Lock & Commit</span> on a university to proceed to the application phase.</span>
                 </div>
               </div>
               
@@ -207,12 +219,12 @@ export default async function DashboardPage() {
 
                 {/* Quick Actions */}
                 <div className="grid grid-cols-2 gap-4">
-                   <button className="btn h-auto py-6 bg-white dark:bg-[#1E1E24] border-gray-100 dark:border-gray-800 hover:border-[#FFC229] hover:shadow-lg text-[#4A2B5E] dark:text-white shadow-sm flex flex-col gap-2 transition-all">
-                    <span className="text-2xl">📥</span>
+                   <button className="btn h-auto py-6 bg-white dark:bg-[#1E1E24] border-gray-100 dark:border-gray-800 hover:border-[#FFC229] hover:shadow-lg text-[#4A2B5E] dark:text-white shadow-sm flex flex-col gap-2 transition-all group">
+                    <span className="text-2xl group-hover:scale-110 transition-transform">📥</span>
                     Download Guide
                    </button>
-                   <button className="btn h-auto py-6 bg-white dark:bg-[#1E1E24] border-gray-100 dark:border-gray-800 hover:border-[#FFC229] hover:shadow-lg text-[#4A2B5E] dark:text-white shadow-sm flex flex-col gap-2 transition-all">
-                    <span className="text-2xl">✈️</span>
+                   <button className="btn h-auto py-6 bg-white dark:bg-[#1E1E24] border-gray-100 dark:border-gray-800 hover:border-[#FFC229] hover:shadow-lg text-[#4A2B5E] dark:text-white shadow-sm flex flex-col gap-2 transition-all group">
+                    <span className="text-2xl group-hover:scale-110 transition-transform">✈️</span>
                     Visa Info
                    </button>
                 </div>
@@ -227,8 +239,6 @@ export default async function DashboardPage() {
 
         </div>
       </div>
-
-
     </div>
   )
 }
