@@ -11,6 +11,9 @@ export default async function DashboardPage() {
   if (!user) return redirect('/login')
 
   const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+  if (!profile || !profile.onboarding_completed) {
+    return redirect('/onboarding')
+  }
 
   const currentStage = profile?.current_stage || 'PROFILE'
   // const currentStage = 'APPLICATION'
